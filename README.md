@@ -85,7 +85,7 @@ cd runtime && ./build.sh
 
 ## 移植 Skill
 
-[skills/windows-game-to-mac](skills/windows-game-to-mac/SKILL.md) 是这次移植的复盘，写成 AI 可以照着做的流程：怎么选路线、每个阶段的过关标准、REA 怎么取证、DirectX 怎么翻译、30 多条踩坑记录（症状 → 原因 → 修法）。本仓库的 `runtime/` 就是它的参考实现。
+[skills/windows-game-to-mac](skills/windows-game-to-mac/SKILL.md) 是这次移植的复盘，写成 AI 可以照着做的流程：怎么选路线、每个阶段的过关标准、REA 怎么取证、DirectX 怎么翻译、40 多条踩坑记录（症状 → 原因 → 修法）。本仓库的 `runtime/` 就是它的参考实现。
 
 装到 Claude Code：
 
