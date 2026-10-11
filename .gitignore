@@ -1,0 +1,7 @@
+dist/
+*.dylib
+__pycache__/
+*.pyc
+serial.txt
+.DS_Store
+logs/
