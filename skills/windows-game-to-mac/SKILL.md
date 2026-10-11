@@ -1,13 +1,15 @@
 ---
-name: win-to-mac-port
-description: 把 Windows 9x/2000 时代的 32 位 EXE（老游戏、老工具，DirectX 5–7、Win32 GDI）不改原程序、不用 Wine，移植到 Apple Silicon Mac 原生运行并打包成 .app。用 REA 逆向取证，Unicorn 执行 x86，自写 Win32/DirectX → AppKit/OpenGL/CoreAudio 接口。适用于“把某个老 Windows 程序弄到 Mac 上跑”。
+name: windows-game-to-mac
+description: 把 Windows 游戏移植到 Apple Silicon Mac 并打包成可分发的 .app。先按位数、图形 API、托管代码、保护方式选路线；主路线针对 2005 年前的 x86 游戏（DirectDraw、Direct3D 3–9、OpenGL、GDI）：原版 EXE 不改、不用 Wine，用 REA 逆向取证，Unicorn 执行 x86，自写 Win32/DirectX → AppKit/OpenGL/CoreAudio 接口。适用于“把某个 Windows 游戏弄到 Mac 上跑”。
 ---
 
-# 老 Windows 程序移植 Mac
+# Windows 游戏移植 Mac
 
 参考实现：本仓库 `runtime/`，把 2002 年《流星蝴蝶剑》`Meteor.exe` 跑到 60fps、能玩、能分发。遇到同类问题先读对应文件，照着改，不要从零想。
 
 ## 路线
+
+先读 [routes.md](references/routes.md)：按位数、图形 API、是否托管代码、有无驱动级保护给游戏分类，选定路线。下面是主路线，适合 2005 年前的 x86 游戏。
 
 ```
 原版 EXE（不改）
@@ -41,9 +43,9 @@ description: 把 Windows 9x/2000 时代的 32 位 EXE（老游戏、老工具，
 
 | 阶段 | 做什么 | 过关标准 |
 |---|---|---|
-| 0 盘点 | 记录 EXE 哈希；REA `binary_overview`；按 DLL 列出全部导入函数 | 有一张“DLL → 函数”清单，标出 DirectX 版本（看 IID 和 `DirectDrawCreate`/`Direct3DCreate`） |
+| 0 盘点 | 记录 EXE 哈希；REA `binary_overview`；按 DLL 列出全部导入函数（含游戏自带的第三方 DLL）；按 routes.md 分类 | 有一张“DLL → 函数”清单，标出位数、图形 API 版本、声音和视频方案，路线已选定 |
 | 1 装载 | PE 映射到 0x400000；一块 mmap 做 guest 内存；导入表填桩地址；建 TIB 和栈 | 跑到第一个 API 调用并打印出来 |
-| 2 补 API | 循环：运行 → 缺哪个补哪个 → 再运行 | 走到 `CreateWindowExA` 和主循环 `PeekMessageA` |
+| 2 补 API | 循环：运行 → 缺哪个补哪个 → 再运行。游戏自带的 DLL（音频、视频库）也装载进来一起执行 | 走到 `CreateWindowExA` 和主循环 `PeekMessageA` |
 | 3 窗口 | AppKit 窗口 + OpenGL 上下文；在 `PeekMessageA` 里处理 macOS 事件 | 双击 .app 能看到窗口，Dock 图标不一直跳 |
 | 4 画面 | DirectDraw 表面、Present、Direct3D 绘制、GDI 文字 | 截图里主菜单和原版一致（亮度、文字、位置） |
 | 5 输入 | 窗口消息（菜单点击）+ DirectInput（关卡内） | 脚本能点进关卡，角色能移动、攻击 |
@@ -53,6 +55,7 @@ description: 把 Windows 9x/2000 时代的 32 位 EXE（老游戏、老工具，
 | 9 体验 | 菜单栏、⌘Q、红绿灯、图标、全屏、触摸板 | 用户亲手试过 |
 
 阶段细节：
+- 选路线、各年代 API 对照：[routes.md](references/routes.md)
 - 架构和代码对应关系：[architecture.md](references/architecture.md)
 - DirectX → OpenGL 的坑：[directx.md](references/directx.md)
 - 怎么用 REA 取证：[rea-playbook.md](references/rea-playbook.md)

@@ -11,7 +11,7 @@
 |---|---|
 | 下载直接玩 | 下面的「下载与运行」 |
 | 看源码、自己构建 | [runtime/](runtime/) 和「从源码构建」 |
-| 用 AI 把别的老 Windows 程序移植到 Mac | [移植 Skill](skills/win-to-mac-port/SKILL.md) |
+| 用 AI 把别的 Windows 游戏移植到 Mac | [移植 Skill](skills/windows-game-to-mac/SKILL.md) |
 
 ## 怎么做到的
 
@@ -82,6 +82,19 @@ cd runtime && ./build.sh
 | `METEOR_SCRIPT` | 脚本化输入回放，格式见 [host.py](runtime/host.py) |
 | `METEOR_SNAP` | 每 N 秒截一张画面到 `logs/` |
 | `METEOR_TRACE` | 逗号分隔的 guest 地址，执行到时打印栈参数 |
+
+## 移植 Skill
+
+[skills/windows-game-to-mac](skills/windows-game-to-mac/SKILL.md) 是这次移植的复盘，写成 AI 可以照着做的流程：怎么选路线、每个阶段的过关标准、REA 怎么取证、DirectX 怎么翻译、30 多条踩坑记录（症状 → 原因 → 修法）。本仓库的 `runtime/` 就是它的参考实现。
+
+装到 Claude Code：
+
+```bash
+git clone https://github.com/OceanJy333/meteor-mac.git
+cp -R meteor-mac/skills/windows-game-to-mac ~/.claude/skills/
+```
+
+其他 Agent（Codex 等）把 `SKILL.md` 和 `references/` 放进它的 skills 目录，或直接在对话里让它先读 `SKILL.md`。需要先装 [REA](https://github.com/morluto/rea)。
 
 ## 源码结构
 
