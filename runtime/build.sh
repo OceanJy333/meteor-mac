@@ -1,9 +1,14 @@
 #!/bin/sh
-# input: this runtime folder + a python-build-standalone CPython 3.12 (uv python install 3.12); output: dist/流星蝴蝶剑.app and dist/MeteorMac-arm64.zip; pos: release build.
-# The app carries the emulator, Mac adapters and Python only. Game files come from the player; SERIAL=<file> presets the CD key, otherwise it is asked on first launch.
+# input: this runtime folder + a python-build-standalone CPython 3.12 (uv python install 3.12); output: dist/流星蝴蝶剑.app and runner/full arm64 ZIP; pos: release build.
+# GAME=<installed game dir> adds bundled resources; SERIAL=<file> presets the key.
 set -e
 cd "$(dirname "$0")"
 PY=${PY:-$(uv python find 3.12)};PYHOME=$(cd "$(dirname "$PY")/.." && pwd)
+ARCHIVE=MeteorMac-arm64.zip
+if [ -n "$GAME" ];then
+ [ -f "$GAME/Meteor.exe" ] || { echo "GAME must contain Meteor.exe";exit 1; }
+ ARCHIVE=MeteorMac-Full-arm64.zip
+fi
 DIST=${DIST:-dist};APP="$DIST/流星蝴蝶剑.app";C=$APP/Contents;R=$C/Resources
 W="-Wall -Wno-deprecated-declarations -arch arm64 -mmacosx-version-min=12.0"
 clang -O2 -dynamiclib $W -framework OpenGL -o libd3dgl.dylib d3dgl.c fast.c
@@ -22,6 +27,7 @@ install_name_tool -id @rpath/libpython3.12.dylib "$R/python/lib/libpython3.12.dy
 clang -O2 $W -I"$R/python/include/python3.12" -I"$PYHOME/include/python3.12" -o "$C/MacOS/MeteorMac" launcher.c -L"$R/python/lib" -lpython3.12 -Wl,-rpath,@executable_path/../Resources/python/lib
 for f in runner.py paths.py heap.py win32.py window.py host.py input.py com.py ddraw.py d3d.py gdi.py opengl.py opengl_noop.py dsound.py dshow.py winsock.py registry.py file_search.py \
  libd3dgl.dylib libaudio.dylib libmeteorhost.dylib libpixels.dylib;do cp "$f" "$R/runtime/";done
+[ -z "$GAME" ] || ditto "$GAME" "$R/game"
 # App icon: generated, then packed into the sizes macOS asks for.
 I=$(mktemp -d)/AppIcon.iconset;mkdir -p "$I";"$R/python/bin/python3.12" make_icon.py "$I/icon_512x512@2x.png"
 for n in 16 32 128 256 512;do sips -z $n $n "$I/icon_512x512@2x.png" --out "$I/icon_${n}x${n}.png" >/dev/null;sips -z $((n*2)) $((n*2)) "$I/icon_512x512@2x.png" --out "$I/icon_${n}x${n}@2x.png" >/dev/null;done
@@ -45,5 +51,5 @@ PLIST
 find "$R/python" -name __pycache__ -prune -exec rm -rf {} +
 if grep -rlI "$HOME" "$APP" >/dev/null;then echo "local path left in bundle:";grep -rlI "$HOME" "$APP";exit 1;fi
 codesign --force --deep -s - "$APP"
-(cd "$DIST" && rm -f MeteorMac-arm64.zip && ditto -c -k --keepParent 流星蝴蝶剑.app MeteorMac-arm64.zip)
-du -sh "$APP" "$DIST/MeteorMac-arm64.zip"
+(cd "$DIST" && rm -f "$ARCHIVE" && ditto -c -k --keepParent 流星蝴蝶剑.app "$ARCHIVE")
+du -sh "$APP" "$DIST/$ARCHIVE"

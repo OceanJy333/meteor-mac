@@ -1,5 +1,5 @@
-# input: METEOR_GAME / METEOR_DATA env or first-run dialogs; output: game dir, writable data dir, runtime dir; pos: the one place that knows where files live.
-# The release ships no game data and no CD key: the player points at their own copy once, and the choice is kept in the data dir.
+# input: bundled game, METEOR_GAME / METEOR_DATA env or first-run dialogs; output: game dir, writable data dir, runtime dir; pos: the one place that knows where files live.
+# Full builds carry game resources beside runtime; saves and settings live in the user data dir.
 import os,pathlib,subprocess,json,shutil
 RUNTIME=pathlib.Path(__file__).resolve().parent
 DATA=pathlib.Path(os.environ.get('METEOR_DATA') or pathlib.Path.home()/'Library/Application Support/MeteorMac')
@@ -25,6 +25,8 @@ def extract(folder):
  return find_exe(out)
 def game():
  if os.environ.get('METEOR_GAME'):return pathlib.Path(os.environ['METEOR_GAME'])
+ bundled=RUNTIME.parent/'game'
+ if (bundled/'Meteor.exe').is_file():return bundled
  DATA.mkdir(parents=True,exist_ok=True)
  cfg=json.loads(CONFIG.read_text()) if CONFIG.exists() else {}
  if cfg.get('game') and (pathlib.Path(cfg['game'])/'Meteor.exe').exists():return pathlib.Path(cfg['game'])

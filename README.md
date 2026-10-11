@@ -23,19 +23,19 @@
 
 ## 下载与运行
 
-1. 在 [Releases](../../releases) 下载 `MeteorMac-arm64.zip`，解压得到 `流星蝴蝶剑.app`，拖进「应用程序」。
+1. 在 [Releases](../../releases) 下载 `MeteorMac-Full-arm64.zip` 完整包，解压得到 `流星蝴蝶剑.app`，拖进「应用程序」。完整包内置原版游戏资源，无需选择游戏目录或安装运行环境。
 2. 首次打开：右键 → 打开（应用没有 Apple 公证）。仍被拦截时在终端运行：
 
    ```bash
    xattr -dr com.apple.quarantine /Applications/流星蝴蝶剑.app
    ```
 
-3. 按提示选择你自己的游戏目录，二选一：
+3. 双击进入游戏。选择较小的 `MeteorMac-arm64.zip` 运行器包时，首次需提供自己的游戏目录，二选一：
    - 装好的游戏目录（含 `Meteor.exe`），比如从 Windows 拷来的 `C:\Meteor`。
    - 原版安装盘目录（含 `data1.cab`）。需要先 `brew install unshield`，程序会自动解包。
 4. Release 包已预置 CD Key，不用输入。
 
-本仓库和 Release 都不含游戏文件。首次启动会解锁单人模式全部 9 关。
+源码仓库不含游戏文件。完整包内置游戏资源，运行器包由用户提供资源。首次启动会解锁单人模式全部 9 关。
 
 ## 操作
 
@@ -113,3 +113,5 @@ cp -R meteor-mac/skills/windows-game-to-mac ~/.claude/skills/
 ## 许可
 
 本仓库代码使用 MIT 许可。《流星蝴蝶剑》的游戏文件、美术和商标归原权利人所有，请使用你自己拥有的游戏副本。
+
+构建完整包：`GAME=<含 Meteor.exe 的目录> SERIAL=<CD Key 文件> ./build.sh`。游戏资源只进入打包产物。
